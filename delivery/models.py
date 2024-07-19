@@ -17,7 +17,7 @@ class Parcel(models.Model):
         ('in_Transit','In Transit'),
         ('delivered','Delivered'),
     ]
-    status = models.CharField(max_length=15, choices=choices)
+    status = models.CharField(max_length=15, choices=choices, default="pending")
     sender = models.ForeignKey(CustomUser, on_delete= models.CASCADE)
     receiver_name = models.CharField(max_length=100)
     receiver_adress = models.TextField()
