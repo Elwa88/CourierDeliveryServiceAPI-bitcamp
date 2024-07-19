@@ -7,7 +7,7 @@ class CustomUser(AbstractUser):
         ('customer','Customer'),
         ('admin','Admin'),
     ]
-    role = models.CharField(max_length=10, choices=choices)
+    role = models.CharField(max_length=15, choices=choices)
 
 class Parcel(models.Model):
     title = models.CharField(max_length=150)
@@ -17,7 +17,7 @@ class Parcel(models.Model):
         ('in_Transit','In Transit'),
         ('delivered','Delivered'),
     ]
-    status = models.CharField(max_length=10, choices=choices)
+    status = models.CharField(max_length=15, choices=choices)
     sender = models.ForeignKey(CustomUser, on_delete= models.CASCADE)
     receiver_name = models.CharField(max_length=100)
     receiver_adress = models.TextField()
