@@ -1,22 +1,27 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
-from .models import CustomUser
-from django.shortcuts import get_object_or_404
+from rest_framework.permissions import BasePermission
 
-class ParcelPermissions(BasePermission):
+class CustomerPermissions(BasePermission):
+    
     def has_object_permission(self, request, view, obj):
-        user = get_object_or_404(CustomUser, pk = request.user.pk)
-        if user.role == "admin":
-            return True
-        if request.method == "POST":
-            return user.role == "customer"
-        if request.method in SAFE_METHODS:
+        if request.method == "POST" and request.user.role == "customer":
+             return True
+        if request.method in ["PUT","DELETE","GET"]:
             return obj.sender == request.user
-        if request.method == "PUT":
-            if user.role == "courier" or obj.sender == request.user:
-                return True
-            
-class ProofPermissions(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        user = get_object_or_404(CustomUser, pk = request.user.pk)
-        if user.role == "admin" or user.role == "courier":
+        
+class CourierPermissions(BasePermission):
+    def has_permission(self, request, view):
+        if request.method  in ["PUT","PATCH","GET"]:
             return True
+        
+        
+class AdminPermissions(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.role == "admin"
+    
+class ProofPermissions(BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST":
+            return request.user.role == 'courier'
+
+        
+        

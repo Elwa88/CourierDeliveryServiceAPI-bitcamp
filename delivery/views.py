@@ -2,7 +2,12 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from .permissions import ParcelPermissions, ProofPermissions
+from .permissions import (
+    AdminPermissions,
+    CustomerPermissions,
+    CourierPermissions,
+    ProofPermissions,
+    )
 from .models import Parcel, DeliveryProof, CustomUser
 from .serializers import ParcelSerializer, DeliveryProofSerializer, CustomUserSerializer
 
@@ -10,7 +15,13 @@ from .serializers import ParcelSerializer, DeliveryProofSerializer, CustomUserSe
 class ParcelViewSet(viewsets.ModelViewSet):
     queryset = Parcel.objects.all()
     serializer_class = ParcelSerializer
-    permission_classes = [ParcelPermissions]
+    def get_permissions(self):
+        if self.action in ['list','partial_update', 'retrieve']:
+            permission_classes = [CourierPermissions]
+        if self.action in ['create', 'update','destroy']:
+            permission_classes = [CustomerPermissions]
+
+        return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
         serializer.save(sender = self.request.user)
