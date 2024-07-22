@@ -1,11 +1,10 @@
 from rest_framework.permissions import BasePermission
 
 class CustomerPermissions(BasePermission):
-    
     def has_object_permission(self, request, view, obj):
-        if request.method == "POST" and request.user.role == "customer":
+        if request.method == "POST":
              return True
-        if request.method in ["PUT","DELETE","GET"]:
+        if request.method in ["PUT","DELETE","GET","PATCH"]:
             return obj.sender == request.user
         
 class CourierPermissions(BasePermission):
@@ -20,8 +19,7 @@ class AdminPermissions(BasePermission):
     
 class ProofPermissions(BasePermission):
     def has_permission(self, request, view):
-        if request.method == "POST":
+        if request.user.role == 'admin':
+            return True
+        elif request.method == "POST":
             return request.user.role == 'courier'
-
-        
-        

@@ -16,10 +16,13 @@ class ParcelViewSet(viewsets.ModelViewSet):
     queryset = Parcel.objects.all()
     serializer_class = ParcelSerializer
     def get_permissions(self):
-        if self.action in ['list','partial_update', 'retrieve']:
-            permission_classes = [CourierPermissions]
-        if self.action in ['create', 'update','destroy']:
-            permission_classes = [CustomerPermissions]
+        user = self.request.user
+        if user.role == "courier":
+                permission_classes = [CourierPermissions]
+        elif user.role == "customer":
+                permission_classes = [CustomerPermissions]
+        elif user.role == "admin":
+             permission_classes = [AdminPermissions]
 
         return [permission() for permission in permission_classes]
 
@@ -34,7 +37,12 @@ class ProofViewSet(viewsets.ModelViewSet):
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    permission_classes = [AllowAny]
+    def get_permissions(self):
+        if self.action == 'create':
+              permission_classes = [AllowAny]
+        else:
+              permission_classes = [AdminPermissions]
+        return [permission() for permission in permission_classes]
 
 class AssignedParcels(APIView):
     def get(self,request):
