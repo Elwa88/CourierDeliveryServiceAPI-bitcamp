@@ -12,6 +12,6 @@ router.register(r'users',CustomUserViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('api/parcels/<int:id>/delivery_proof/',ProofViewSet.as_view({'post': 'create'}), name = 'proofs'),
+    path('api/parcels/<int:id>/delivery_proof/',ProofViewSet.as_view({'post': 'create','get' : "list"}), name = 'proofs'),
     path('api/courier/',AssignedParcels.as_view(), name= 'courier'),
 ]

@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from .permissions import (
     AdminPermissions,
@@ -10,14 +10,18 @@ from .permissions import (
     )
 from .models import Parcel, DeliveryProof, CustomUser
 from .serializers import ParcelSerializer, DeliveryProofSerializer, CustomUserSerializer
-
+from django_filters.rest_framework import DjangoFilterBackend
 
 class ParcelViewSet(viewsets.ModelViewSet):
     queryset = Parcel.objects.all()
     serializer_class = ParcelSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['title','status','sender','courier','receiver_name']
     def get_permissions(self):
         user = self.request.user
-        if user.role == "courier":
+        if not user.is_authenticated:
+             permission_classes = [IsAuthenticated]
+        elif user.role == "courier":
                 permission_classes = [CourierPermissions]
         elif user.role == "customer":
                 permission_classes = [CustomerPermissions]
@@ -41,7 +45,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
               permission_classes = [AllowAny]
         else:
-              permission_classes = [AdminPermissions]
+              permission_classes = [IsAuthenticated,AdminPermissions]
         return [permission() for permission in permission_classes]
 
 class AssignedParcels(APIView):
